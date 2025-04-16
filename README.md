@@ -23,14 +23,16 @@ This project uses a locally hosted LLM (Mistral 7B via Ollama) to analyze Disney
 
 ## 🛠️ Tech Stack
 
-- **LLM**: Mistral 7B (via Ollama)
-- **Interface**: OpenWebUI (for prompt testing)
+- **LLM Engine**: Mistral 7B (language model itself)
+- **LLM Runner**: Ollama (runs LLM locally)
+- **Prompt GUI**: OpenWebUI (for prompt testing)
+- **Container**: Docker (only for GUI)
 - **Language**: Python (scripting, automation)
-- **Storage & Querying**: Google Cloud Platform
+- **Storage**: Google Cloud Platform
   - BigQuery (structured data)
   - Cloud Storage (10-K files and outputs)
-- **Visualization**: Plotly or Matplotlib (Sankey chart)
-- **Version Control**: Git + GitHub
+- **Visualization**: Plotly or Matplotlib (TBDDDD)
+- **Version Control**: Git + GitHub 
 
 ---
 
@@ -48,12 +50,21 @@ docker/ → Environment setup (optional)
 
 ## 🚀 Next Steps
 
-- [x] Set up GitHub repo and folders ✅
+- [x] Set up GitHub repo and folders 
 - [x] Add prompt template for income statement
 - [ ] Connect to GCP (BigQuery + GCS)
-- [ ] Develop Mistral LLM pipeline
+- [x] Develop Mistral LLM pipeline
 - [ ] Build visualization output (Sankey chart)
 - [ ] Expand pipeline to support other companies
+
+
+## Ideas 
+
+- Benchmart against competitors (Disney vs Netflix)
+- Fine-tune LLM on financial reports 
+- Add a web scraper  
+- Detect suspicious trends 
+
 
 ---
 
