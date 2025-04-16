@@ -63,7 +63,8 @@ docker/ → Environment setup (optional)
 - Benchmart against competitors (Disney vs Netflix)
 - Fine-tune LLM on financial reports 
 - Add a web scraper  
-- Detect suspicious trends 
+- Detect suspicious trends
+- Implement Google Trends 
 
 
 ---
