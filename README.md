@@ -36,6 +36,52 @@ This project uses a locally hosted LLM (Mistral 7B via Ollama) to analyze Disney
 
 ---
 
+## 🧱 Full Project Tech Stack (Layered Architecture)
+
+### 💻 Infrastructure Layer (Compute & Storage)
+| Component     | Details                                                                 |
+|---------------|-------------------------------------------------------------------------|
+| RAM           | 8GB–24GB (depending on machine used for development/inference)         |
+| CPU           | Intel/AMD CPU                                                           |
+| GPU (optional)| Available on secondary machine for future fine-tuning or acceleration   |
+| Storage       | Local SSD for development + Google Cloud Storage for project files      |
+
+---
+
+### 🗂️ Data Layer (Storage & Ingestion)
+| Source / Tool                 | Purpose                                                 |
+|------------------------------|----------------------------------------------------------|
+| Local CSV / TXT files         | Income statement data, prompt templates, LLM outputs     |
+| Google Cloud Storage (GCS)    | Backup and shared access to financial files              |
+| Google BigQuery (planned)     | Structured query layer for financial records             |
+| Google Trends (`pytrends`)    | Adds real-world public interest data for analysis        |
+
+---
+
+### 🧠 Machine Learning Layer (Model Inference & Analysis)
+| Tool/Model     | Role                                                                |
+|----------------|---------------------------------------------------------------------|
+| Mistral 7B      | Local LLM for summarizing and explaining 10-K data                 |
+| Ollama          | Local API interface and runtime for hosting LLMs                   |
+| OpenWebUI       | Optional GUI interface for interacting with models (via Docker)    |
+| Fine-tuning (future) | LoRA-based training to enhance financial domain specificity   |
+
+---
+
+### 💻 Application Layer (UI, API, Visualization)
+| Tool/Framework     | Use Case                                                     |
+|--------------------|--------------------------------------------------------------|
+| Python Scripts      | Automate prompt loading, LLM inference, and file handling   |
+| Jupyter Notebooks   | Exploration, testing, and rapid prototyping                 |
+| GitHub              | Version control and project management                      |
+| Plotly              | Sankey chart and future visualizations                      |
+| Streamlit / Dash (planned) | Interactive dashboard or mini web app                |
+| OpenWebUI (optional)| Local GUI for LLM prompt testing                            |
+| ngrok (optional)    | Temporary public access to local web apps                   |
+
+
+---
+
 ## 🗂️ Project Structure
 
 data/ → 10-K files or cleaned CSVs
