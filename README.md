@@ -102,6 +102,7 @@ docker/ → Environment setup (optional)
 - [x] Develop Mistral LLM pipeline
 - [ ] Build visualization output (Sankey chart)
 - [ ] Expand pipeline to support other companies
+- [ ] Expand on commercial possibilities 
 
 
 ## Ideas 
