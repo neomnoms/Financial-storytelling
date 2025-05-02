@@ -1,0 +1,82 @@
+## Step 1: Document Preprocessing (Load 10-K PDF or HTML)
+
+from langchain.document_loaders import PyPDFLoader
+
+loader = PyPDFLoader("10-K_Disney_2023.pdf")
+raw_docs = loader.load()
+
+"""
+## If using HTML (EDGAR filings):
+
+from langchain.document_loaders import WebBaseLoader
+
+url = "https://www.sec.gov/Archives/edgar/data/1744489/000174448923000073/dis-20230930.htm"
+loader = WebBaseLoader(url)
+raw_docs = loader.load()
+
+"""
+
+## Step 2: Chunking the Document into Smaller Segments
+
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,
+    chunk_overlap=150,
+    separators=["\n\n", "\n", ".", " "]
+)
+chunks = text_splitter.split_documents(raw_docs)
+
+
+## Step 3: Embedding + Storing in a Vector Database
+
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import FAISS
+
+embedding = OpenAIEmbeddings()  # Use your API key
+vectorstore = FAISS.from_documents(chunks, embedding)
+vectorstore.save_local("vectorstores/disney_10k")
+
+
+
+## Step 4: User Query → Embedding
+
+query = "Extract the income statement from the 10-K report."
+docs_with_income_statement = vectorstore.similarity_search(query, k=4)
+
+
+## Step 5: Use LLM + Retrieved Docs to Generate a Response
+
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import RetrievalQA
+
+llm = ChatOpenAI(model_name="gpt-4", temperature=0)
+
+rag_chain = RetrievalQA.from_chain_type(
+    llm=llm,
+    retriever=vectorstore.as_retriever(),
+    return_source_documents=True
+)
+
+
+if __name__ == "__main__":
+    response = rag_chain.run(query)
+    print(response)
+
+
+## Structure the Output (for Sankey chart)
+
+# Example output from model
+extracted_income_statement = {
+    "Revenue": 88400,
+    "Cost of Goods Sold": 54000,
+    "Gross Profit": 34400,
+    "Operating Expenses": 12000,
+    "Operating Income": 22400,
+    "Net Income": 14500
+}
+
+
+# TODO: Convert extracted_income_statement into a format compatible with your Sankey chart
+
+
