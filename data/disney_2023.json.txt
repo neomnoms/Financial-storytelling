@@ -1,0 +1,17 @@
+{
+  "company": "Disney",
+  "year": 2023,
+  "sections": {
+    "Revenue": {
+      "Parks & Experiences": 32000000,
+      "Media & Entertainment": 42000000,
+      "Licensing & Merchandising": 15000000
+    },
+    "Expenses": {
+      "Operating Costs": 40000000,
+      "Marketing": 8000000,
+      "R&D": 3000000
+    },
+    "Net Income": 13000000
+  }
+}
