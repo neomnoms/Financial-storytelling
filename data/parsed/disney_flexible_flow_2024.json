@@ -1,0 +1,62 @@
+{
+  "company": "Disney",
+  "year": 2024,
+  "flow": [
+    {
+      "label": "Streaming Revenue (e.g., Disney+)",
+      "amount": 15000000000
+    },
+    {
+      "label": "Theater Revenue (e.g., Box office income)",
+      "amount": 3000000000
+    },
+    {
+      "label": "Merchandise Sales",
+      "amount": 500000000
+    },
+    {
+      "label": "Advertising Revenue (e.g., from TV spots)",
+      "amount": 2000000000
+    },
+    {
+      "label": "Content Creation Costs",
+      "amount": -10500000000
+    },
+    {
+      "label": "Streaming Content Costs (e.g., licensing fees, original content)",
+      "amount": -8000000000
+    },
+    {
+      "label": "Theater Production and Distribution Costs",
+      "amount": -2000000000
+    },
+    {
+      "label": "Merchandise Production Costs",
+      "amount": -350000000
+    },
+    {
+      "label": "Advertising Production Costs",
+      "amount": -100000000
+    },
+    {
+      "label": "General Administrative Expenses (e.g., salaries, rent, utilities)",
+      "amount": -2500000000
+    },
+    {
+      "label": "Depreciation and Amortization",
+      "amount": -1000000000
+    },
+    {
+      "label": "Interest Expense (e.g., on loans and debts)",
+      "amount": -350000000
+    },
+    {
+      "label": "Income Taxes",
+      "amount": -4000000000
+    },
+    {
+      "label": "Net Profit",
+      "amount": 1600000000
+    }
+  ]
+}
