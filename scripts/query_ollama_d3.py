@@ -25,20 +25,19 @@ Use your own reasoning to:
 Important constraints:
 
 1. All "value" fields must be plain numbers only — use numeric literals (e.g., 5000000).
-   - Never use text, labels, or calculations as values.
-   - Do not include math expressions — each "value" must be a single raw number only.
+   - Never use text, labels, calculations, or variable names as values.
 
-2. No negative values allowed.
-   - If an amount reduces another (like taxes or costs), reverse the source → target direction instead of using a negative.
+2. Do not use negative values. If an amount reduces another, reverse the direction of the flow instead.
 
 3. The flow must go from income → expenses → taxes → net profit.
    - The last node must always be “Net Profit” or “Net Profit/Loss”.
    - Never flow *out of* the net profit node.
 
-4. Return only a clean JSON object.
-   - Do not include explanations, markdown formatting, or comments.
-   - Do not use comments (e.g., // something) in your output. Return only raw JSON.
-   - If a value reduces another (like COGS reduces revenue), reverse the direction of the flow instead of using a negative number.
+4. You must return only a valid raw JSON object.
+   - Do not include any commentary, explanations, comments (e.g., // ...), markdown, or headings.
+   - Do not use extra fields like "subtract" — only include "source", "target", and "value".
+   - All values must be numeric literals only.
+   - Output must start with { and end with } — no text before or after.
 
 5. Structure must match this exactly:
 {{
