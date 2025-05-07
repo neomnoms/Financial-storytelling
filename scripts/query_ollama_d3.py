@@ -18,33 +18,31 @@ def load_raw_statement(filepath):
 
 def build_prompt(company, year, raw_statement):
     return f"""
-You are a financial storytelling assistant.
+You are a financial analyst creating a Sankey diagram to visualize how money flows through a company's operations.
 
-Your task is to examine the raw income statement data below and group each line item into logical financial buckets based on the company's income structure.
+You are working with structured income statement data for {company} for the year {year}.
 
 Use your own reasoning to:
-- Create your own bucket categories (e.g., "Streaming Revenue", "Content Costs", "Administrative Expenses", "Taxes", etc.)
-- Arrange the data into a top-down flow that represents the movement of money from income sources to profit/loss
-- Format your output for a D3.js Sankey diagram using nodes and links.
+- Identify and extract distinct revenue streams (e.g., subscriptions, licensing, product sales, services, advertising, royalties, etc.)
+- Identify major cost and expense categories (e.g., cost of goods sold, marketing, R&D, SG&A, legal, interest, taxes)
+- Include government subsidies, tax credits, or incentives if present (e.g., energy credits, R&D tax breaks)
+- Consolidate the data into meaningful buckets but avoid overly vague labels like “expenses” or “miscellaneous”
 
-💡 Please strictly follow this JSON structure:
-```json
+Format the output strictly as a valid JSON structure suitable for a D3.js Sankey diagram. Structure:
 {{
   "company": "{company}",
   "year": {year},
-  "nodes": [
-    {{ "name": "Streaming Revenue" }},
-    {{ "name": "Operating Costs" }},
-    {{ "name": "Net Profit" }}
-  ],
-  "links": [
-    {{ "source": 0, "target": 1, "value": 30000000 }},
-    {{ "source": 1, "target": 2, "value": 15000000 }}
-  ]
+  "nodes": [{{ "name": "Revenue Stream X" }}, ...],
+  "links": [{{ "source": 0, "target": 1, "value": 1000000 }}, ...]
 }}
-```
 
-⚠️ Only include the JSON code block — no explanations or extra formatting.
+🔁 Important constraints:
+- All value fields must be positive.
+- If an amount reduces another (like costs), reverse the source-target flow.
+- Net Profit or Loss should always be the final node.
+- All "value" fields must be numeric literals only — no text, variables, or expressions.
+- Do not include explanations or commentary — only return the JSON block.
+
 
 Here is the raw income data:
 {json.dumps(raw_statement, indent=2)}
