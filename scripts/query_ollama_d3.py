@@ -14,40 +14,38 @@ def build_prompt(company, year, raw_statement):
     return f"""
 You are a financial storytelling assistant.
 
-Your task is to examine the raw income statement data below and group each line item into logical financial buckets based on the company's income structure.
+Your task is to examine the raw income statement below and group each line item into **5 to 7 high-level financial buckets**. Each bucket should represent a distinct category such as revenue, costs, taxes, or profit.
 
-Use your own reasoning to:
-- Identify and extract revenue streams (e.g., subscriptions, licensing, product sales, etc.)
-- Identify and extract cost/expense categories (e.g., COGS, SG&A, R&D, marketing, legal, etc.)
-- Include government subsidies or tax credits if present
-- Map everything into a Sankey diagram-style format using nodes and links
+Use your reasoning to:
+- Group similar items into top-level buckets (e.g., "Product Revenue", "Operating Expenses", "R&D", "Taxes", etc.)
+- Do not break down categories into fine-grained sub-items unless absolutely necessary
+- Structure a top-down money flow: income → costs → taxes → net profit
+- Format your output for a Sankey diagram using "nodes" and "links"
 
-Important constraints:
+🔒 Constraints (must follow all):
+- Output ONLY a valid JSON object — no comments, no markdown, no explanation
+- All "value" fields must be plain numeric literals (e.g., 1000000)
+- Do NOT use negative values; reverse flow direction if needed
+- The final node must be "Net Profit" or "Net Profit/Loss"
+- Do NOT add additional fields such as "raw_statement"
 
-1. All "value" fields must be plain numbers only — use numeric literals (e.g., 5000000).
-   - Never use text, labels, calculations, or variable names as values.
-
-2. Do not use negative values. If an amount reduces another, reverse the direction of the flow instead.
-
-3. The flow must go from income → expenses → taxes → net profit.
-   - The last node must always be “Net Profit” or “Net Profit/Loss”.
-   - Never flow *out of* the net profit node.
-
-4. You must return only a valid raw JSON object.
-   - Do not include any commentary, explanations, comments (e.g., // ...), markdown, or headings.
-   - Do not use extra fields like "subtract" — only include "source", "target", and "value".
-   - All values must be numeric literals only.
-   - Output must start with { and end with } — no text before or after.
-
-5. Structure must match this exactly:
+🎯 Required format:
 {{
   "company": "{company}",
   "year": {year},
-  "nodes": [{{ "name": "X" }}, {{ "name": "Y" }}],
-  "links": [{{ "source": 0, "target": 1, "value": 5000000 }}]
+  "nodes": [
+    {{ "name": "X" }},
+    {{ "name": "Y" }},
+    ...
+  ],
+  "links": [
+    {{ "source": 0, "target": 1, "value": 1230000 }}
+  ]
 }}
 
-Here is the raw income data:
+⚠️ Return only the raw JSON object. No headers. No footers. No markdown. 
+
+Raw input: 
 {json.dumps(raw_statement, indent=2)}
 """
 
