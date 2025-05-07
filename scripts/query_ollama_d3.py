@@ -1,85 +1,95 @@
-
-import json
-import subprocess
-import re
 import os
+import json
+import re
+from typing import List, Dict
+from ollama import Client
 
-# Filepaths
-JSON_INPUT = "data/parsed/disney_income_statement_2024.json"
-JSON_OUTPUT = "data/parsed/disney_d3_ready_2024.json"
+ollama = Client(host='http://localhost:11434')
 
-def load_raw_statement(filepath):
-    with open(filepath, 'r') as f:
-        data = json.load(f)
-    company = data.get("company", "Unknown Company")
-    year = data.get("year", "Unknown Year")
-    raw_data = data.get("raw_statement", {})
-    return company, year, raw_data
+INPUT_PATH = "data/parsed/disney_income_statement_2024.json"
+OUTPUT_PATH = "data/parsed/disney_d3_ready_2024.json"
+
 
 def build_prompt(company, year, raw_statement):
     return f"""
-You are a financial analyst creating a Sankey diagram to visualize how money flows through a company's operations.
+You are a financial storytelling assistant.
 
-You are working with structured income statement data for {company} for the year {year}.
+Your task is to examine the raw income statement data below and group each line item into logical financial buckets based on the company's income structure.
 
 Use your own reasoning to:
-- Identify and extract distinct revenue streams (e.g., subscriptions, licensing, product sales, services, advertising, royalties, etc.)
-- Identify major cost and expense categories (e.g., cost of goods sold, marketing, R&D, SG&A, legal, interest, taxes)
-- Include government subsidies, tax credits, or incentives if present (e.g., energy credits, R&D tax breaks)
-- Consolidate the data into meaningful buckets but avoid overly vague labels like “expenses” or “miscellaneous”
+- Identify and extract revenue streams (e.g., subscriptions, licensing, product sales, etc.)
+- Identify and extract cost/expense categories (e.g., COGS, SG&A, R&D, marketing, legal, etc.)
+- Include government subsidies or tax credits if present
+- Map everything into a Sankey diagram-style format using nodes and links
 
-Format the output strictly as a valid JSON structure suitable for a D3.js Sankey diagram. Structure:
+Important constraints:
+
+1. All "value" fields must be plain numbers only — use numeric literals (e.g., 5000000).
+   - Never use text, labels, or calculations as values.
+   - Do not include math expressions — each "value" must be a single raw number only.
+
+2. No negative values allowed.
+   - If an amount reduces another (like taxes or costs), reverse the source → target direction instead of using a negative.
+
+3. The flow must go from income → expenses → taxes → net profit.
+   - The last node must always be “Net Profit” or “Net Profit/Loss”.
+   - Never flow *out of* the net profit node.
+
+4. Return only a clean JSON object.
+   - Do not include explanations, markdown formatting, or comments.
+   - Do not use comments (e.g., // something) in your output. Return only raw JSON.
+   - If a value reduces another (like COGS reduces revenue), reverse the direction of the flow instead of using a negative number.
+
+5. Structure must match this exactly:
 {{
   "company": "{company}",
   "year": {year},
-  "nodes": [{{ "name": "Revenue Stream X" }}, ...],
-  "links": [{{ "source": 0, "target": 1, "value": 1000000 }}, ...]
+  "nodes": [{{ "name": "X" }}, {{ "name": "Y" }}],
+  "links": [{{ "source": 0, "target": 1, "value": 5000000 }}]
 }}
-
-🔁 Important constraints:
-- All value fields must be positive.
-- If an amount reduces another (like costs), reverse the source-target flow.
-- Net Profit or Loss should always be the final node.
-- All "value" fields must be numeric literals only — no text, variables, or expressions.
-- Do not include explanations or commentary — only return the JSON block.
-
 
 Here is the raw income data:
 {json.dumps(raw_statement, indent=2)}
 """
 
-def query_ollama(prompt):
-    result = subprocess.run(
-        ["ollama", "run", "mistral"],
-        input=prompt.encode("utf-8"),
-        stdout=subprocess.PIPE
-    )
-    return result.stdout.decode("utf-8")
+def extract_json(response: str) -> Dict:
+    match = re.search(r'({.*})', response, re.DOTALL)
+    if not match:
+        raise ValueError("❌ Could not extract a valid JSON structure from the response.")
+    return json.loads(match.group(1))
 
-def extract_json(response):
+
+def load_income_data(file_path: str) -> Dict:
+    with open(file_path, 'r') as f:
+        return json.load(f)
+
+
+def save_json(data: Dict, output_path: str):
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    print(f"✅ AI-generated D3 flow structure saved to {output_path}")
+
+
+def main():
+    company = "Disney"
+    year = 2024
+    raw_statement = load_income_data(INPUT_PATH)
+    prompt = build_prompt(company, year, raw_statement)
+
+    print("🧠 Sending raw data for", company, "to Ollama...")
+    response = ollama.chat(
+        model="mistral",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
     try:
-        match = re.search(r'```json\s*({.*?})\s*```', response, re.DOTALL)
-        if match:
-            return json.loads(match.group(1))
-    except Exception as e:
-        print("❌ Error parsing JSON:", e)
-    return None
+        cleaned_json = extract_json(response['message']['content'])
+        save_json(cleaned_json, OUTPUT_PATH)
+    except ValueError as e:
+        print(str(e))
+        print("💥 Raw Ollama response was:\n", response['message']['content'])
+
 
 if __name__ == "__main__":
-    company, year, raw_data = load_raw_statement(JSON_INPUT)
-    print(f"🧠 Sending raw data for {company} ({year}) to Ollama...")
-
-    prompt = build_prompt(company, year, raw_data)
-    response = query_ollama(prompt)
-
-    print("\n📤 Ollama's Response:\n")
-    print(response)
-
-    structured_json = extract_json(response)
-    if structured_json:
-        os.makedirs(os.path.dirname(JSON_OUTPUT), exist_ok=True)
-        with open(JSON_OUTPUT, "w") as f:
-            json.dump(structured_json, f, indent=2)
-        print(f"\n✅ AI-generated D3 flow structure saved to {JSON_OUTPUT}")
-    else:
-        print("❌ Could not extract a valid JSON structure.")
+    main()
